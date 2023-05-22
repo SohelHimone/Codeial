@@ -9,7 +9,39 @@
 <body>
     
     <h1>The user profile</h1>
-    <p>Name:<%=user.name%></p>
-    <p>Email:<%=user.email%></p>
+    
+    <img src="<%=user.avatar%>" alt="<%=user.name%>" width="100">,
+
+    <%if(user.id==profile_user.id){%>
+        <!-- if users matchs then display form -->
+        <form action="/users/update/<%=profile_user.id%>" method="post" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Update your Name" required value="<%=profile_user.name%>">
+            <input type="email" name="email" placeholder="Update your Email" required value="<%=profile_user.email%>">
+            <input type="file" name="avatar" placeholder="your avatar">
+            <input type="submit" value="Update">
+        
+        <p>Name:<%=profile_user.name%></p>
+        <p>Email:<%=profile_user.email%></p> 
+    </form>
+        
+    <%}else{%>
+        <p>Name:<%=profile_user.name%></p>
+        <p>Email:<%=profile_user.email%></p>      
+    <%}%>
+    <br>
+    <% if(user.id != profile_user.id) {%>
+        <% if(friends==false) {%>
+    <p id="friend-style">
+        <a href="/friends/toggle/?id=<%=profile_user.id%>" id="toggle-friend">add friend</a>
+    </p>
+    <%}%>
+    <% if(friends==true) {%>
+        <p id="friend-style">
+            <a href="/friends/toggle/?id=<%=profile_user.id%>" id="toggle-friend">remove friend</a>
+        </p>
+        <%}%>
+    <%}%>
+    <script src="/js/toggle_friend.js"></script> 
+
 </body>
 </html>

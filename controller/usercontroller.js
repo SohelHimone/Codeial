@@ -1,7 +1,10 @@
 // const user = require('../models/user');
 const User=require('../models/user');
+const fs=require('fs');
+const path=require('path');
+const Friendship=require('../models/friendshipSchema');
 
-module.exports.profile=function(req,res){
+module.exports.profile= async function(req,res){
     // return res.end('<h1>this user Profile controller</h1>')
     //this code is for manual authecitating here we find user id in cookie and then redirect it to profile page
     // if(req.cookies.user_id){
@@ -23,9 +26,79 @@ module.exports.profile=function(req,res){
     
 
     //this code is normal just to render profile page
-    return res.render('user_profile',{
-        title:"Profile",
-    });
+    // User.findById(req.params.id,function(err,user){
+    //         console.log(user)
+    //         if(user){
+    //             return res.render('user_profile',{
+    //                 title:"Profile",
+    //                 profile_user:user
+    //             });
+    //         }
+    //         return res.redirect('/users/Sign_in');
+
+    // });
+
+    try{
+        let user = await User.findById(req.params.id);
+     
+        let friend1 =await Friendship.findOne({from_user:req.params.id, to_user:req.user.id});
+        let friend2 =await Friendship.findOne({from_user:req.user.id, to_user:req.params.id});
+        
+        let friends=false ;
+        if(friend1 || friend2)
+         friends=true;
+        res.render('user_profile',{
+                 title:'profile-page',
+                 profile_user:user,
+                 friends:friends
+                
+                 });
+        }catch(err){
+                 console.log(err);
+        }
+
+    
+}
+
+
+module.exports.update=async function(req,res){
+    // if(req.user.id==req.params.id){
+    //     User.findByIdAndUpdate(req.params.id,req.body,function(err,user){
+    //         return res.redirect('back');
+    //     });
+    // }
+    // else{
+    //     return res.status(401).send("unAuthorized");
+    // }
+
+    //async and await method
+    if(req.user.id==req.params.id){
+       try{
+         let user=await User.findById(req.params.id);
+         User.useravatar(req,res,function(err){
+            if(err){console.log('*** ,multer erorr',err)}
+
+            // console.log(req.file);
+            user.name=req.body.name;
+            user.email=req.body.email;
+            if(req.file){
+                if(user.avatar){
+                   fs.unlinkSync(path.join(__dirname,'..',user.avatar));
+                }
+                user.avatar=User.avatarpath +'/'+ req.file.filename;
+            }
+            user.save();
+            return res.redirect('back');
+         });
+       }catch(err){
+           return res.redirect('back');
+       }
+    }
+    else{
+        return res.status(401).send("unAuthorized");
+    }
+    
+
 }
 
 
@@ -40,7 +113,7 @@ module.exports.post=function(req,res){
 
 module.exports.SignIn=function(req,res){
     if(req.isAuthenticated()){
-        return res.redirect('/users/profile');
+        return res.redirect('/');
     }
     return res.render('user_sign_in',{
         title:"Sign In"
@@ -57,7 +130,7 @@ module.exports.SignUp=function(req,res){
 }
 
 module.exports.create=function(req,res){
-    //by manually first we check pasword is it match or not?
+    //by manually first we check password is it match or not?
     if(req.body.password!=req.body.confirm_password){
         return res.redirect('back');
     }
@@ -70,7 +143,7 @@ module.exports.create=function(req,res){
          //now suppose we dont get user then we create new user by create function were we use Schema to create new user
         if(!user){
             User.create(req.body,function(err,user){
-                if(err){console.log('error in finding user'); return;} 
+                if(err){console.log('error in creating user'); return;} 
                 return res.redirect('/users/Sign_in');
             })
         }
@@ -104,8 +177,9 @@ module.exports.create=function(req,res){
 
 //here we use Passport.js for creating seesion
 module.exports.createsession = function(req,res){
+    req.flash('success','Logged In successfully');
     console.log(req.user);
-     return res.redirect('/users/profile');
+     return res.redirect('/');
 }
 
 
@@ -116,11 +190,18 @@ module.exports.signout=function(req,res){
           console.log('err')
           return ;
         }
+        req.flash('success','You have Logged Out!!');
         return res.redirect("/");
       });
 }
 
 
+
+
+
+module.exports.resetpassword=function(req,res){
+    
+}
 
 
 

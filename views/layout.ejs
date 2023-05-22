@@ -1,19 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>
         <%=title%>
     </title>
-    <link href="/css/index.css" rel="stylesheet">
+ 
+    <link rel="stylesheet" href="/js/iziToast.min.css"/>
+    <link rel="stylesheet" href="/css/chatbox.css"/>
+
+
     <%- style%>
+   
+   
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  -->
+    <script src="/js/jquery.min.js"></script>
+
+   
 
 </head>
+
 <body>
     <%-include('_header');-%>
-    <%- body-%>
-    <%-include('_footer');-%>
+        <!-- <%if(flash.success && flash.success.length>0){%>
+
+            <h4>
+                <%=flash.success%>
+            </h4>
+            <%}%> -->
+                <%- body-%>
+                    <%-include('_footer');-%>
+                        <script src="/js/iziToast.min.js"></script>
+                        <%-script%>
+                        <!-- <script>
+       <%if(flash.success && flash.success.length>0){%>
+            new Noty({
+                theme:'relax',
+                type: 'success',
+                layout: 'topRight',
+                text: '<%=flash.success%>',
+                timeout:1500
+            }).show();
+       <%}%> -->
+
+
+                        <script>
+
+        <% if (flash.success && flash.success.length > 0) {%>
+                                // new Noty({
+                                //     theme: 'relax',
+                                //     text: '<%= flash.success%>',
+                                //     type: 'success',
+                                //     layout: 'topRight',
+                                //     timeout: 1500 
+
+                                // }).show();
+                                iziToast.success({
+                                    title: 'OK',
+                                    message: '<%=flash.success%>',
+                                    position: 'topRight',
+                                    timeout: 3000
+                                })
+
+                                <%}%>
+
+        <% if (flash.error && flash.error.length > 0) {%>
+                                // new Noty({
+                                //     theme: 'relax',
+                                //     text: '<%= flash.error%>',
+                                //     type: 'error',
+                                //     layout: 'topRight',
+                                //     timeout: 1500 
+
+                                // }).show();
+                                iziToast.error({
+                                    title: 'error',
+                                    message: '<%=flash.error%>',
+                                    position: 'topRight',
+                                    timeout: 3000
+                                })
+
+                                <%}%>
+                        </script>
+ 
+ 
 </body>
+
 </html>
